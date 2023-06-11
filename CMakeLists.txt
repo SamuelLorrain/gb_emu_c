@@ -16,5 +16,5 @@ include_directories(include)
 add_executable(debugger src/main.c src/cpu.c src/debugger.c src/mmu.c)
 
 # tests
-add_executable(test tests/test.c src/debugger.c)
+add_executable(test tests/test.c src/cpu.c)
 target_link_libraries(test criterion)

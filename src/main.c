@@ -21,11 +21,12 @@ int main(int argc, char* argv[argc + 1]) {
         fputs("First argument must be the rom file\n", stderr);
         return EXIT_FAILURE;
     }
-    FILE* fp = fopen(argv[1], "rb");
-    size_t file_size = get_file_size(fp);
+    FILE* rom_file = fopen(argv[1], "rb");
+    size_t file_size = get_file_size(rom_file);
 
     unsigned char rom_buffer[file_size];
-    size_t fread_result = fread(rom_buffer, 1, file_size, fp);
+    size_t fread_result = fread(rom_buffer, 1, file_size, rom_file);
+    fclose(rom_file);
     if (fread_result != file_size) {
         fputs("Unable to read rom file\n", stderr);
         return EXIT_FAILURE;
@@ -37,11 +38,19 @@ int main(int argc, char* argv[argc + 1]) {
     /* debug_header(&rom_header); */
 
     // Begin
-    Registers cpu = { .pc = 0x100, .sp = 0xFFFE };
+    Registers regs = { .pc = 0x100, .sp = 0xfffe };
     unsigned char ram[0xffff] = {0};
     load_rom(ram, rom_buffer);
-
-    debug_instructions(rom_buffer, 0x190, 0x30);
+    /* for(int i = 0 ; i < 50; i++) { */
+    /*     execute_next(&regs, ram); */
+    /* } */
+    for(int i = 0; i <= 0xff; i++) {
+        ram[i] = i;
+    }
+    for(int i =  0; i <= 0xff; i++) {
+        regs.pc = i;
+        execute_next(&regs, ram);
+    }
     return EXIT_SUCCESS;
 }
 
