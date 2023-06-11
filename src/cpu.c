@@ -31,7 +31,7 @@ void debugRegisters(Registers regs) {
 
 void execute_next(Registers* regs, unsigned char buffer[static 0xffff]) {
     unsigned char current = buffer[regs->pc];
-    /* uint16_t imm16 = 0; */
+    printf("PC: 0x%x, %u\n", regs->pc, regs->pc);
     switch(current) {
         case 0x0:
             printf("NOP\n");
@@ -42,12 +42,12 @@ void execute_next(Registers* regs, unsigned char buffer[static 0xffff]) {
             printf("JP a16  0x%x\n", regs->pc);
             break;
         case 0x20:
-            printf("JP NZ, s8\n");
+            printf("JR NZ, s8\n");
             if(regs->f_z == 1) {
                 regs->pc += 2;
                 break;
             }
-            regs->pc = buffer[regs->pc+1];
+            regs->pc += buffer[regs->pc+1];
             break;
         case 0xaf:
             printf("XOR A,A\n");
@@ -56,25 +56,43 @@ void execute_next(Registers* regs, unsigned char buffer[static 0xffff]) {
             regs->f_z = (regs->a == 0) ? 1 : 0;
             regs->pc += 1;
             break;
+        case 0x7a:
+            printf("LD A, D\n");
+            regs->a = regs->d;
+            regs->pc += 1;
+            break;
         case 0x21:
             printf("LD HL, d16\n");
             regs->hl = (buffer[regs->pc+2] << 8) + buffer[regs->pc+1];
             regs->pc += 3;
-            break;
-        case 0x0e:
-            printf("LD C, d8\n");
-            regs->c = buffer[regs->pc+1];
-            regs->pc += 2;
             break;
         case 0x06:
             printf("LD B, d8\n");
             regs->b = buffer[regs->pc+1];
             regs->pc += 2;
             break;
+        case 0x0e:
+            printf("LD C, d8\n");
+            regs->c = buffer[regs->pc+1];
+            regs->pc += 2;
+            break;
+        case 0x1e:
+            printf("LD L, d8\n");
+            regs->l = buffer[regs->pc+1];
+            regs->pc += 2;
+            break;
         case 0x32:
             printf("LD (HL-), A\n");
             buffer[regs->hl] = regs->a;
             regs->hl -= 1;
+            regs->pc += 1;
+            break;
+        case 0x14:
+            printf("INC D\n");
+            regs->f_h = HAS_CARRY_FLAG(regs->d, (regs->d+1)) ? 1 : 0;
+            regs->d += 1;
+            regs->f_z = (regs->b == 0) ? 1 : 0;
+            regs->f_n = 0;
             regs->pc += 1;
             break;
         case 0x05:
@@ -85,7 +103,38 @@ void execute_next(Registers* regs, unsigned char buffer[static 0xffff]) {
             regs->f_n = 1;
             regs->pc += 1;
             break;
+        case 0x15:
+            printf("DEC D\n");
+            regs->f_h = HAS_CARRY_FLAG(regs->d, (regs->d-1)) ? 1 : 0;
+            regs->d -= 1;
+            regs->f_z = (regs->b == 0) ? 1 : 0;
+            regs->f_n = 1;
+            regs->pc += 1;
+            break;
+        case 0x89:
+            printf("ADC A,C\n");
+        case 0x1f:
+            printf("RRA\n");
+            regs->f = 0;
+            regs->f_c = regs->a & 0x1;
+            regs->a = (regs->a >> 1) && (regs->f_c << 7);
+            regs->pc += 1;
+            break;
+        case 0xdf:
+            printf("RST 3\n");
+            buffer[regs->sp] = (regs->pc >> 8) & 0xff;
+            regs->sp -= 1;
+            buffer[regs->sp] = regs->pc & 0xff;
+            regs->sp -= 1;
+            regs->pc = 0x18;
+            break;
         case 0xff:
+            printf("RST 7\n");
+            buffer[regs->sp] = (regs->pc >> 8) & 0xff;
+            regs->sp -= 1;
+            buffer[regs->sp] = regs->pc & 0xff;
+            regs->sp -= 1;
+            regs->pc = 0x38;
             break;
         default:
             fprintf(stderr, "Unknown opcode : 0x%x, ABORT\n", current);

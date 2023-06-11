@@ -23,5 +23,7 @@ typedef struct {
 
 void parse_rom_header(RomHeader* rom_header, unsigned char const buffer[static 0x150]);
 void debug_header(RomHeader* rom_header);
+void debug_instructions(unsigned char* rom, unsigned int offset, size_t nb_instructions);
+void debug_cb_instruction(unsigned char* rom, unsigned int pc);
 
 #endif

@@ -32,18 +32,16 @@ int main(int argc, char* argv[argc + 1]) {
     }
 
     // debug rom header
-    RomHeader rom_header = {0};
-    parse_rom_header(&rom_header, rom_buffer);
-    debug_header(&rom_header);
+    /* RomHeader rom_header = {0}; */
+    /* parse_rom_header(&rom_header, rom_buffer); */
+    /* debug_header(&rom_header); */
 
     // Begin
-    Registers cpu = { .pc = 0x100 }; // starting with pointer counter at 0x150 for now
+    Registers cpu = { .pc = 0x100, .sp = 0xFFFE };
     unsigned char ram[0xffff] = {0};
     load_rom(ram, rom_buffer);
 
-    for(int i = 0; i < 15; i++) {
-        execute_next(&cpu, ram);
-    }
+    debug_instructions(rom_buffer, 0x190, 0x30);
     return EXIT_SUCCESS;
 }
 
