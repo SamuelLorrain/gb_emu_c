@@ -1,86 +1,27 @@
 #ifndef DEBUGGER_H
 #define DEBUGGER_H
-
-
-enum Instruction {
-    LD,
-    PUSH,
-    POP,
-
-    ADD,
-    ADC,
-    SUB,
-    SBC,
-    AND,
-    XOR,
-    OR,
-    CP,
-    INC,
-    DEC,
-    DAA,
-    CPL,
-
-    RLCA,
-    RLA,
-    RRCA,
-    RRA,
-    RLC,
-    RL,
-    RRC,
-    RR,
-    SLA,
-    SWAP,
-    SRA,
-    SRL,
-
-    BIT,
-    SET,
-    RES,
-
-    NOP,
-    STOP,
-    CCF,
-    SCF,
-    HALT,
-    DI,
-    DE,
-
-    JR,
-    JP,
-    RET,
-    CALL,
-    RETI,
-    RST
-}
-
-enum RegisterEnum {
-    A,
-    B,
-    C,
-    D,
-    E,
-    F,
-    H,
-    L,
-
-    AF,
-    BC,
-    DE,
-    HL,
-
-    SP,
-    PC
-}
-
-enum 
-
+#include <stdbool.h>
+#include <stdint.h>
+#include "instructions_debugger.h"
 
 typedef struct {
-    Instruction ins;
-    Operand op1;
-    Operand op2;
-    uint16_t opcode;
-    uint8_t clock_cycles;
-} Debugger;
+    unsigned char entrypoint[4]; // jmp 0x150
+    unsigned char logo[0x30];
+    unsigned char title[15];
+    unsigned char cgb_flag;
+    unsigned char new_licence_code[0x2];
+    unsigned char sgb_flag;
+    unsigned char cardridge_type;
+    unsigned char rom_size;
+    unsigned char ram_size;
+    unsigned char destination_code;
+    unsigned char old_licence_code;
+    unsigned char mask_rom_version_number;
+    unsigned char header_checksum;
+    unsigned char global_checksum[0x2]; // big endian
+} RomHeader;
+
+void parse_rom_header(RomHeader* rom_header, unsigned char const buffer[static 0x150]);
+void debug_header(RomHeader* rom_header);
 
 #endif

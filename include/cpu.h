@@ -6,12 +6,15 @@ typedef struct {
     union {
         uint16_t af;
         struct {
-            struct {
-                uint8_t: 4;
-                uint8_t f_c: 1;
-                uint8_t f_h: 1;
-                uint8_t f_n: 1;
-                uint8_t f_z: 1;
+            union {
+                struct {
+                    uint8_t: 4;
+                    uint8_t f_c: 1;
+                    uint8_t f_h: 1;
+                    uint8_t f_n: 1;
+                    uint8_t f_z: 1;
+                };
+                uint8_t f;
             };
             uint8_t a;
         };
@@ -41,13 +44,7 @@ typedef struct {
     uint16_t pc;
 } Registers;
 
-struct {
-    Registers regs;
-    uint8_t* ram;
-} Cpu;
-
-void debugRegisters(Registers regs);
-int fetchCurrent(cpu* c);
-int fetchNext(cpu* c);
+void debug_registers(Registers regs);
+void execute_next(Registers* regs, unsigned char buffer[static 0xffff]);
 
 #endif
