@@ -2,9 +2,8 @@
 #define CPU_H
 #include <stdint.h>
 #include <stdbool.h>
-
-#define IS_8BITS_REGISTER(x) (x < AF)
-#define IS_16BITS_REGISTER(x) (x >= AF)
+#include "mmu.h"
+#include "instruction.h"
 
 typedef struct {
     union {
@@ -46,24 +45,18 @@ typedef struct {
     };
     uint16_t sp;
     uint16_t pc;
-} Registers;
+} CpuRegisters;
 
-typedef enum {
-    A,
-    B,
-    C,
-    D,
-    E,
-    H,
-    L,
-    AF,
-    BC,
-    DE,
-    HL,
-    SP,
-    PC
-} RegisterName;
+typedef struct {
+    uint8_t current_opcode;
+    uint16_t current_data;
+    Instruction* current_instruction;
+    bool interruptions;
+    uint64_t cycles;
+    CpuRegisters regs;
+    MMU mmu;
+} Cpu;
 
-void execute_next(Registers* regs, unsigned char buffer[static 0xffff]);
+void step(Cpu* cpu);
 
 #endif

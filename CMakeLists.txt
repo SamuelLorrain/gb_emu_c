@@ -12,7 +12,15 @@ find_package(SDL2 REQUIRED)
 include_directories(include)
 include_directories(${SDL2_INCLUDE_DIRS})
 
-add_executable(gb_emu src/main.c src/file_utils.c src/cartridge.c src/debugger.c)
+add_executable(
+    gb_emu
+    src/main.c
+    src/file_utils.c
+    src/cartridge.c
+    src/debugger.c
+    src/mmu.c
+    src/cpu.c
+    src/instruction_functions.c)
 
 target_link_libraries(gb_emu ${SDL2_LIBRARIES} m)
 

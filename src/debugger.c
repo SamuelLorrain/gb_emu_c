@@ -1151,7 +1151,7 @@ void debug_cb_instruction(uint8_t const rom[], unsigned int const pc) {
     printf("%02x %s, %s\n", pc-1, reg_operator, reg_operand);
 }
 
-void debug_registers(Registers* const regs) {
+void debug_registers(CpuRegisters* const regs) {
     printf("a = 0x%2x\n", regs->a);
     printf("b = 0x%2x\n", regs->b);
     printf("c = 0x%2x\n", regs->c);
@@ -1182,7 +1182,7 @@ void debug_header(RomHeader* const rom_header, uint8_t const rom[static 0x150]) 
     /* for(int i = 0; i < 0x30; i++) { */
     /*     printf("%x ", rom_header->logo[i]); */
     /* } */
-    putchar('\n');
+    /* putchar('\n'); */
     fputs("title: ", stdout);
     for(int i = 0; i < 15; i++) {
         if (rom_header->title[i] == 0) {
