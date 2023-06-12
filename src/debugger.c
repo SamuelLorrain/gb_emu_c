@@ -1,44 +1,45 @@
-#include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "cpu.h"
 #include "debugger.h"
+#include "cartridge.h"
 
-void debug_header(RomHeader* rom_header) {
-    putchar('\n');
-    fputs("logo: ", stdout);
-    for(int i = 0; i < 0x30; i++) {
-        printf("%x ", rom_header->logo[i]);
-    }
-    putchar('\n');
-    fputs("title: ", stdout);
-    for(int i = 0; i < 15; i++) {
-        if (rom_header->title[i] == 0) {
-            break;
-        }
-        putchar(rom_header->title[i]);
-    }
-    putchar('\n');
-    printf("cgb_flag: 0x%02x\n", rom_header->cgb_flag);
-    printf("new_licence_code: 0x%02x 0x%02x\n", rom_header->new_licence_code[0], rom_header->new_licence_code[1]);
-    printf("sgb_flag: 0x%02x\n", rom_header->sgb_flag);
-    printf("cardridge_type: 0x%02x\n", rom_header->cardridge_type);
-    printf("rom_size: 0x%02x\n", rom_header->rom_size);
-    printf("ram_size: 0x%02x\n", rom_header->ram_size);
-    printf("destination_code: 0x%02x\n", rom_header->destination_code);
-    printf("old_licence_code: 0x%02x\n", rom_header->old_licence_code);
-    printf("mask_rom_version_number: 0x%02x\n", rom_header->mask_rom_version_number);
-    printf("header_checksum: 0x%02x\n", rom_header->header_checksum);
-    printf("global_checksum: 0x%2x%2x\n", rom_header->global_checksum[0], rom_header->global_checksum[1]); // big endian
-}
+static const char* CartridgeType[] = {
+    [0x00] = "ROM_ONLY",
+    [0x01] = "MBC1",
+    [0x02] = "MBC1_RAM",
+    [0x03] = "MBC1_RAM_BATTERY",
+    [0x05] = "MBC2",
+    [0x06] = "MBC2_BATTERY",
+    [0x08] = "ROM_RAM_1",
+    [0x09] = "ROM_RAM_BATTERY_1",
+    [0x0B] = "MMM01",
+    [0x0C] = "MMM01_RAM",
+    [0x0D] = "MMM01_RAM_BATTERY",
+    [0x0F] = "MBC3_TIMER_BATTERY",
+    [0x10] = "MBC3_TIMER_RAM_BATTERY_2",
+    [0x11] = "MBC3",
+    [0x12] = "MBC3_RAM_2",
+    [0x13] = "MBC3_RAM_BATTERY_2",
+    [0x19] = "MBC5",
+    [0x1A] = "MBC5_RAM",
+    [0x1B] = "MBC5_RAM_BATTERY",
+    [0x1C] = "MBC5_RUMBLE",
+    [0x1D] = "MBC5_RUMBLE_RAM",
+    [0x1E] = "MBC5_RUMBLE_RAM_BATTERY",
+    [0x20] = "MBC6",
+    [0x22] = "MBC7_SENSOR_RUMBLE_RAM_BATTERY",
+    [0xFC] = "POCKET_CAMERA",
+    [0xFD] = "BANDAI_TAMA5",
+    [0xFE] = "HUC3",
+    [0xFF] = "HUC1_RAM_BATTERY",
+};
 
-void parse_rom_header(RomHeader* rom_header, unsigned char const buffer[static 0x150]) {
-    memcpy(rom_header, &(buffer[0x100]), 0x50);
-}
-
-void debug_instructions(unsigned char* rom, unsigned int offset, size_t nb_instructions) {
-    unsigned int pc = offset;
-    for(unsigned int i = 0; i < nb_instructions; i++) {
+void debug_instructions(uint8_t const rom[], uint16_t const offset, size_t const nb_instructions) {
+    uint16_t pc = offset;
+    for(size_t i = 0; i < nb_instructions; i++) {
         switch(rom[pc]) {
             case 0x00:
                 printf("%04x NOP\n", pc);
@@ -1043,11 +1044,11 @@ void debug_instructions(unsigned char* rom, unsigned int offset, size_t nb_instr
     }
 }
 
-void debug_cb_instruction(unsigned char* rom, unsigned int pc) {
+void debug_cb_instruction(uint8_t const rom[], unsigned int const pc) {
     const char* reg_operand = NULL;
     const char* reg_operator = NULL;
-    unsigned int operand = rom[pc] & 0x0f;
-    unsigned int operator = (rom[pc] >> 4);
+    uint8_t operand = rom[pc] & 0x0f;
+    uint8_t operator = (rom[pc] >> 4);
     switch (operand) {
         case 0:
         case 8:
@@ -1149,3 +1150,66 @@ void debug_cb_instruction(unsigned char* rom, unsigned int pc) {
     }
     printf("%02x %s, %s\n", pc-1, reg_operator, reg_operand);
 }
+
+void debug_registers(Registers* const regs) {
+    printf("a = 0x%2x\n", regs->a);
+    printf("b = 0x%2x\n", regs->b);
+    printf("c = 0x%2x\n", regs->c);
+    printf("d = 0x%2x\n", regs->d);
+    printf("e = 0x%2x\n", regs->e);
+    printf("h = 0x%2x\n", regs->h);
+    printf("l = 0x%2x\n", regs->l);
+    printf("f = 0x%2x\n", regs->f);
+
+    printf("=======\n");
+
+    printf("af = 0x%4x\n", regs->af);
+    printf("bc = 0x%4x\n", regs->bc);
+    printf("de = 0x%4x\n", regs->de);
+    printf("hl = 0x%4x\n", regs->hl);
+    printf("sp = 0x%4x\n", regs->sp);
+    printf("pc = 0x%4x\n", regs->pc);
+
+    printf("=======\n");
+    printf("FLAGS:\n");
+    printf("c, h, n, z\n");
+    printf("%1d, %1d, %1d, %1d\n", regs->f_c, regs->f_h, regs->f_n, regs->f_z);
+}
+
+void debug_header(RomHeader* const rom_header, uint8_t const rom[static 0x150]) {
+    /* putchar('\n'); */
+    /* fputs("logo: ", stdout); */
+    /* for(int i = 0; i < 0x30; i++) { */
+    /*     printf("%x ", rom_header->logo[i]); */
+    /* } */
+    putchar('\n');
+    fputs("title: ", stdout);
+    for(int i = 0; i < 15; i++) {
+        if (rom_header->title[i] == 0) {
+            break;
+        }
+        putchar(rom_header->title[i]);
+    }
+    putchar('\n');
+    printf("cgb_flag: 0x%02x\n", rom_header->cgb_flag);
+    printf("new_licence_code: 0x%04x\n", rom_header->new_licence_code);
+    printf("sgb_flag: 0x%02x\n", rom_header->sgb_flag);
+    printf("cartridge_type: %s\n", get_rom_cartridge_type(rom_header));
+    printf("rom_size: 0x%02x\n", rom_header->rom_size);
+    printf("ram_size: 0x%02x\n", rom_header->ram_size);
+    printf("destination_code: 0x%02x\n", rom_header->destination_code);
+    printf("old_licence_code: 0x%02x\n", rom_header->old_licence_code);
+    printf("mask_rom_version_number: 0x%02x\n", rom_header->mask_rom_version_number);
+    printf("header_checksum: 0x%02x\n", rom_header->header_checksum);
+    printf("global_checksum: 0x%04x\n", rom_header->global_checksum);
+    printf("is header checksum valid ? : %s\n", is_header_checksum_valid(rom_header, rom) ? "true" : "false");
+}
+
+const char* get_rom_cartridge_type(RomHeader* const rom_header) {
+    const char* rom_type = CartridgeType[rom_header->cartridge_type];
+    if (rom_type[0] == '\0') {
+        return "UNKNOWN CARTRIDGE TYPE";
+    }
+    return rom_type;
+}
+

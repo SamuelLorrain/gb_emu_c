@@ -1,6 +1,10 @@
 #ifndef CPU_H
 #define CPU_H
 #include <stdint.h>
+#include <stdbool.h>
+
+#define IS_8BITS_REGISTER(x) (x < AF)
+#define IS_16BITS_REGISTER(x) (x >= AF)
 
 typedef struct {
     union {
@@ -44,7 +48,22 @@ typedef struct {
     uint16_t pc;
 } Registers;
 
-void debug_registers(Registers regs);
+typedef enum {
+    A,
+    B,
+    C,
+    D,
+    E,
+    H,
+    L,
+    AF,
+    BC,
+    DE,
+    HL,
+    SP,
+    PC
+} RegisterName;
+
 void execute_next(Registers* regs, unsigned char buffer[static 0xffff]);
 
 #endif

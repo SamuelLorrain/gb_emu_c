@@ -51,5 +51,4 @@ enum InstructionMnemotechnic {
     INSTRUCTION_MNEMOTECHNIC_RST
 };
 
-
 #endif

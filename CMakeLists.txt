@@ -1,20 +1,22 @@
 cmake_minimum_required(VERSION 3.26)
 
-project(gb_emulator
+project(gb_emu
     VERSION 1.0
     DESCRIPTION "a gameboy emulator"
     LANGUAGES C)
 
 add_compile_options(-Wall -Wextra -Wpedantic)
 
-# find_package(SDL2 REQUIRED)
-# include_directories(${SDL2_INCLUDE_DIRS})
-# target_link_libraries(debugger ${SDL2_LIBRARIES} m)
+find_package(SDL2 REQUIRED)
 
 include_directories(include)
+include_directories(${SDL2_INCLUDE_DIRS})
 
-add_executable(debugger src/main.c src/cpu.c src/debugger.c src/mmu.c)
+add_executable(gb_emu src/main.c src/file_utils.c src/cartridge.c src/debugger.c)
+
+target_link_libraries(gb_emu ${SDL2_LIBRARIES} m)
+
 
 # tests
-add_executable(test tests/test.c src/cpu.c)
-target_link_libraries(test criterion)
+# add_executable(test tests/test.c src/cpu.c)
+# target_link_libraries(test criterion)

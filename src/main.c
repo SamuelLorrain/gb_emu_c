@@ -5,52 +5,38 @@
 #include <string.h>
 #include "debugger.h"
 #include "cpu.h"
-#include "mmu.h"
-
-size_t get_file_size(FILE* const fp) {
-    size_t current_position = ftell(fp);
-    fseek(fp, 0L, SEEK_END);
-    size_t file_size = ftell(fp);
-    fseek(fp, 0, current_position);
-    return file_size;
-}
-
+/* #include "SDL.h" */
+#include "file_utils.h"
+#include "cartridge.h"
+#include "debugger.h"
 
 int main(int argc, char* argv[argc + 1]) {
-    if (argc < 2) {
-        fputs("First argument must be the rom file\n", stderr);
-        return EXIT_FAILURE;
-    }
-    FILE* rom_file = fopen(argv[1], "rb");
-    size_t file_size = get_file_size(rom_file);
-
-    unsigned char rom_buffer[file_size];
-    size_t fread_result = fread(rom_buffer, 1, file_size, rom_file);
-    fclose(rom_file);
-    if (fread_result != file_size) {
-        fputs("Unable to read rom file\n", stderr);
-        return EXIT_FAILURE;
-    }
-
-    // debug rom header
-    /* RomHeader rom_header = {0}; */
-    /* parse_rom_header(&rom_header, rom_buffer); */
-    /* debug_header(&rom_header); */
-
-    // Begin
-    Registers regs = { .pc = 0x100, .sp = 0xfffe };
-    unsigned char ram[0xffff] = {0};
-    load_rom(ram, rom_buffer);
-    /* for(int i = 0 ; i < 50; i++) { */
-    /*     execute_next(&regs, ram); */
+    /* if (argc < 2) { */
+    /*     fprintf(stderr, "Should give rom at first argument\n"); */
+    /*     exit(1); */
     /* } */
-    for(int i = 0; i <= 0xff; i++) {
-        ram[i] = i;
+
+    /* if(SDL_Init(SDL_INIT_VIDEO) < 0) { */
+    /*     fprintf(stderr, "SDL error : %s", SDL_GetError()); */
+    /*     exit(1); */
+    /* } */
+    /* SDL_Quit(); */
+
+    FILE* rom = fopen(argv[1], "rb");
+    if(!rom) {
+        fprintf(stderr, "Unable to load rom\n");
+        exit(1);
     }
-    for(int i =  0; i <= 0xff; i++) {
-        regs.pc = i;
-        execute_next(&regs, ram);
-    }
+
+    size_t rom_size = get_file_size(rom);
+    uint8_t rom_buffer[rom_size];
+
+    fread(rom_buffer, rom_size, 1, rom);
+
+    RomHeader rom_header = {0};
+    parse_rom_header(&rom_header, rom_buffer);
+    debug_header(&rom_header, rom_buffer);
+    fclose(rom);
     return EXIT_SUCCESS;
 }
 
