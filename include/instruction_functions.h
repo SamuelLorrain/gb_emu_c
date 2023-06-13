@@ -13,5 +13,7 @@ void jr_instruction(Cpu* cpu);
 void nop_instruction();
 void di_instruction(Cpu* cpu);
 void xor_instruction(Cpu* cpu);
+void pop_instruction(Cpu* cpu);
+void push_instruction(Cpu* cpu);
 
 #endif

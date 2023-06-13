@@ -69,5 +69,9 @@ uint16_t mmu_read16(Cpu* cpu, uint16_t addr);
 void mmu_write(Cpu* cpu, uint16_t addr, uint8_t value);
 void mmu_write16(Cpu* cpu, uint16_t addr, uint16_t value);
 
+void stack_push(Cpu* cpu, uint8_t value);
+void stack_push16(Cpu* cpu, uint16_t value);
+uint8_t stack_pop(Cpu* cpu);
+uint16_t stack_pop16(Cpu* cpu);
 
 #endif

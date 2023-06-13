@@ -6,6 +6,95 @@
 #include "instruction_functions.h"
 #include "debugger.h"
 
+uint8_t mmu_read(Cpu* cpu, uint16_t addr) {
+    if (addr < 0x8000) {
+        return cpu->mmu.rom_buffer[addr];
+    } else if (addr <  0xA000) {
+        fprintf(stderr, "Unsupported read to Char/map data\n");
+        return -1;
+    } else if (addr <  0xC000) {
+        // cartridge ram
+        return cpu->mmu.rom_buffer[addr];
+    } else if (addr <  0xE000) {
+        // wram
+        return cpu->mmu.wram_buffer[addr - 0xC0000];
+    } else if (addr <  0xFE00) {
+        // echo ram
+        return 0;
+    } else if (addr <  0xFEA0) {
+        // oam
+        fprintf(stderr, "Unsupported read to OAM\n");
+        return 0;
+    } else if (addr <  0xFF00) {
+        // reserved
+        return 0;
+    } else if (addr <  0xFF80) {
+        // I/O registers
+        fprintf(stderr, "Unsupported read to IO\n");
+    } else if (addr == 0xFFFF) {
+        // interruption
+        return cpu->ei_register;
+        fprintf(stderr, "Unsupported read to interruption\n");
+    } else {
+        // >= FF80 && < FFFF
+        return cpu->mmu.hram_buffer[addr - 0xFF80];
+    }
+    return -1;
+}
+
+void mmu_write(Cpu* cpu, uint16_t addr, uint8_t value) {
+    if (addr < 0x8000) {
+        cpu->mmu.rom_buffer[addr] = value;
+    } else if (addr <  0xA000) {
+        fprintf(stderr, "Unsupported write to Char/map data\n");
+        return;
+    } else if (addr <  0xC000) {
+        // cartridge ram
+        cpu->mmu.rom_buffer[addr] = value;
+    } else if (addr <  0xE000) {
+        // wram
+        cpu->mmu.wram_buffer[addr - 0xC0000] = value;
+    } else if (addr <  0xFE00) {
+        // echo ram
+        return;
+    } else if (addr <  0xFEA0) {
+        // oam
+        fprintf(stderr, "Unsupported write to OAM\n");
+        return;
+    } else if (addr <  0xFF00) {
+        // reserved
+        return;
+    } else if (addr <  0xFF80) {
+        // I/O registers
+        fprintf(stderr, "Unsupported write to IO\n");
+    } else if (addr == 0xFFFF) {
+        // interruption
+        cpu->ei_register = value;
+        fprintf(stderr, "Unsupported write to interruption\n");
+    }
+    // >= FF80 && < FFFF
+    cpu->mmu.hram_buffer[addr - 0xFF80] = value;
+}
+
+uint16_t mmu_read16(Cpu* cpu, uint16_t addr) {
+    // little endian
+    if (addr < 0x8000) {
+        return (cpu->mmu.rom_buffer[addr]) | (cpu->mmu.rom_buffer[addr+1] << 8);
+    }
+    fprintf(stderr, "Unsupported read\n");
+    return -1;
+}
+
+void mmu_write16(Cpu* cpu, uint16_t addr, uint16_t value) {
+    // little endian
+    if (addr+1 < 0x8000) {
+        cpu->mmu.rom_buffer[addr] = (value >> 8) & 0xff;
+        cpu->mmu.rom_buffer[addr+1] = value & 0xff;
+    }
+    fprintf(stderr, "Unsupported write16 \n");
+    return;
+}
+
 Instruction instructions[0x100] = {
     [0x00] = {INSTRUCTION_NOP, ADDRESSING_MODE_NONE},
     [0x01] = {INSTRUCTION_LD, ADDRESSING_MODE_R_D16, REGISTER_NAME_BC},
@@ -112,17 +201,25 @@ Instruction instructions[0x100] = {
 
     [0xAF] = {INSTRUCTION_XOR, ADDRESSING_MODE_R, REGISTER_NAME_A},
 
+    [0xC1] = {INSTRUCTION_POP, ADDRESSING_MODE_NONE, REGISTER_NAME_BC},
     [0xC3] = {INSTRUCTION_JP, ADDRESSING_MODE_IMM16},
+    [0xC5] = {INSTRUCTION_PUSH, ADDRESSING_MODE_NONE, REGISTER_NAME_BC},
+
+    [0xD1] = {INSTRUCTION_POP, ADDRESSING_MODE_NONE, REGISTER_NAME_DE},
+    [0xD5] = {INSTRUCTION_PUSH, ADDRESSING_MODE_NONE, REGISTER_NAME_DE},
 
     [0xE0] = {INSTRUCTION_LDH, ADDRESSING_MODE_A8_R, REGISTER_NAME_NONE, REGISTER_NAME_A},
+    [0xE1] = {INSTRUCTION_POP, ADDRESSING_MODE_NONE, REGISTER_NAME_HL},
     [0xE2] = {INSTRUCTION_LD, ADDRESSING_MODE_MR_R, REGISTER_NAME_C, REGISTER_NAME_A},
+    [0xE5] = {INSTRUCTION_PUSH, ADDRESSING_MODE_NONE, REGISTER_NAME_HL},
     [0xEA] = {INSTRUCTION_LD, ADDRESSING_MODE_A16_R, REGISTER_NAME_NONE, REGISTER_NAME_A},
 
     [0xF0] = {INSTRUCTION_LDH, ADDRESSING_MODE_R_A8, REGISTER_NAME_A, REGISTER_NAME_NONE},
+    [0xF1] = {INSTRUCTION_POP, ADDRESSING_MODE_NONE, REGISTER_NAME_AF},
     [0xF2] = {INSTRUCTION_LD, ADDRESSING_MODE_R_MR, REGISTER_NAME_A, REGISTER_NAME_C},
     [0xF3] = {INSTRUCTION_DI},
+    [0xF5] = {INSTRUCTION_PUSH, ADDRESSING_MODE_NONE, REGISTER_NAME_AF},
     [0xFA] = {INSTRUCTION_LD, ADDRESSING_MODE_R_A16, REGISTER_NAME_A},
-
 };
 
 cpu_instruction_function_ptr* instruction_ptrs[] = {
@@ -134,6 +231,8 @@ cpu_instruction_function_ptr* instruction_ptrs[] = {
     [INSTRUCTION_JR] = jr_instruction,
     [INSTRUCTION_DI] = di_instruction,
     [INSTRUCTION_XOR] = xor_instruction,
+    [INSTRUCTION_POP] = pop_instruction,
+    [INSTRUCTION_PUSH] = push_instruction,
 };
 
 void fetch_opcode(Cpu* cpu) {
@@ -353,3 +452,24 @@ void step(Cpu* cpu) {
     putchar('\n');
 }
 
+void stack_push(Cpu* cpu, uint8_t value) {
+    cpu->regs.sp--;
+    mmu_write(cpu, cpu->regs.sp, value);
+}
+
+void stack_push16(Cpu* cpu, uint16_t value) {
+    stack_push(cpu, (value >> 8) & 0xff);
+    stack_push(cpu, value & 0xff);
+}
+
+uint8_t stack_pop(Cpu* cpu) {
+    uint8_t value = mmu_read(cpu, cpu->regs.sp);
+    cpu->regs.sp++;
+    return value;
+}
+
+uint16_t stack_pop16(Cpu* cpu) {
+    uint16_t hi = stack_pop(cpu);
+    uint16_t lo = stack_pop(cpu);
+    return (hi << 8) | lo;
+}

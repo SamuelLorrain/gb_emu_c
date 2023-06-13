@@ -18,7 +18,6 @@ add_executable(
     src/file_utils.c
     src/cartridge.c
     src/debugger.c
-    src/mmu.c
     src/cpu.c
     src/instruction_functions.c)
 

@@ -91,3 +91,25 @@ void xor_instruction(Cpu* cpu) {
     cpu->regs.f_z = !!cpu->regs.a;
 }
 
+
+void pop_instruction(Cpu* cpu) {
+    uint16_t lo = stack_pop(cpu);
+    cpu->cycles++;
+    uint16_t hi = stack_pop(cpu);
+    cpu->cycles++;
+    uint16_t value = (hi << 8) | lo;
+    set_reg(cpu, cpu->current_instruction->reg_a, value);
+    if (cpu->current_instruction->reg_a == REGISTER_NAME_AF) {
+        set_reg(cpu, cpu->current_instruction->reg_a, value & 0xfff0);
+    }
+}
+
+void push_instruction(Cpu* cpu) {
+    uint16_t hi = (get_reg(cpu, cpu->current_instruction->reg_a) >> 8) & 0xff;
+    cpu->cycles++;
+    stack_push(cpu, hi);
+    uint16_t lo = get_reg(cpu, cpu->current_instruction->reg_a) & 0xff;
+    cpu->cycles++;
+    stack_push(cpu, lo);
+    cpu->cycles++;
+}
