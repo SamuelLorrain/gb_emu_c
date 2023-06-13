@@ -4,10 +4,9 @@
 
 typedef struct {
     uint8_t* rom_buffer;
+    uint8_t wram_buffer[0x2000];
+    uint8_t hram_buffer[0x80];
 } MMU;
-
-uint8_t mmu_read(MMU* mmu, uint16_t addr);
-void mmu_write(MMU* mmu, uint16_t addr, uint8_t value);
 
 #endif
 

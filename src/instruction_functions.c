@@ -28,8 +28,41 @@ void invalid_instruction(Cpu* cpu) {
 }
 
 void ld_instruction(Cpu* cpu) {
-    fprintf(stderr, "NOT IMPLEMENTED");
-    exit(1);
+    if (cpu->current_destination_in_memory) {
+        if (cpu->current_instruction->reg_b >= REGISTER_NAME_AF) {
+            cpu->cycles++;
+            mmu_write16(cpu, cpu->current_destination_in_memory, cpu->current_data);
+        } else {
+            mmu_write(cpu, cpu->current_destination_in_memory, cpu->current_data);
+        }
+        return;
+    }
+    if (cpu->current_instruction->mode == ADDRESSING_MODE_HL_SPR) {
+        uint8_t b = get_reg(cpu, cpu->current_instruction->reg_b);
+        uint8_t a = cpu->current_data;
+        cpu->regs.f_h = (b & 0xf) + (a & 0xf) >= 0x10;
+        cpu->regs.f_c = (b & 0xff) + (a & 0xff) >= 0x100;
+        set_reg(cpu,
+                cpu->current_instruction->reg_a,
+                cpu->current_instruction->reg_b + cpu->current_data);
+        return;
+    }
+    // general case
+    set_reg(cpu, cpu->current_instruction->reg_a, cpu->current_data);
+}
+
+void ldh_instruction(Cpu* cpu) {
+    if (cpu->current_instruction->reg_a == REGISTER_NAME_A) {
+        set_reg(
+            cpu,
+            REGISTER_NAME_A,
+            mmu_read(cpu,
+            0xff00 | cpu->current_data)
+        );
+    } else {
+        mmu_write(cpu, 0xff00 | cpu->current_data, cpu->regs.a);
+    }
+    cpu->cycles++;
 }
 
 void jp_instruction(Cpu* cpu) {
@@ -49,5 +82,12 @@ void jr_instruction(Cpu* cpu) {
 void nop_instruction(void) {}
 
 void di_instruction(Cpu* cpu) {
-    cpu->interruptions = false;
+    cpu->interruption_master_enable = false;
 }
+
+void xor_instruction(Cpu* cpu) {
+    cpu->regs.a ^= cpu->current_data && 0xff;
+    cpu->regs.f = 0;
+    cpu->regs.f_z = !!cpu->regs.a;
+}
+

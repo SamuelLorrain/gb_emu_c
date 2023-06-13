@@ -5,6 +5,7 @@
 #include "cpu.h"
 #include "debugger.h"
 #include "cartridge.h"
+#include "instruction.h"
 
 static const char* CartridgeType[] = {
     [0x00] = "ROM_ONLY",
@@ -1176,6 +1177,14 @@ void debug_registers(CpuRegisters* const regs) {
     printf("%1d, %1d, %1d, %1d\n", regs->f_c, regs->f_h, regs->f_n, regs->f_z);
 }
 
+void debug_registers_inline(CpuRegisters* const regs) {
+    printf("af = 0x%04x ", regs->af);
+    printf("bc = 0x%04x ", regs->bc);
+    printf("de = 0x%04x ", regs->de);
+    printf("hl = 0x%04x ", regs->hl);
+    printf("sp = 0x%04x ", regs->sp);
+}
+
 void debug_header(RomHeader* const rom_header, uint8_t const rom[static 0x150]) {
     /* putchar('\n'); */
     /* fputs("logo: ", stdout); */
@@ -1211,5 +1220,57 @@ const char* get_rom_cartridge_type(RomHeader* const rom_header) {
         return "UNKNOWN CARTRIDGE TYPE";
     }
     return rom_type;
+}
+
+static const char* instruction_type_names[] = {
+    [INSTRUCTION_NONE] = "NONE" ,
+    [INSTRUCTION_LD] = "LD" ,
+    [INSTRUCTION_LDI] = "LDI" ,
+    [INSTRUCTION_LDD] = "LDD" ,
+    [INSTRUCTION_PUSH] = "PUSH" ,
+    [INSTRUCTION_POP] = "POP" ,
+    [INSTRUCTION_ADD] = "ADD" ,
+    [INSTRUCTION_ADC] = "ADC" ,
+    [INSTRUCTION_SUB] = "SUB" ,
+    [INSTRUCTION_SBC] = "SBC" ,
+    [INSTRUCTION_AND] = "AND" ,
+    [INSTRUCTION_XOR] = "XOR" ,
+    [INSTRUCTION_OR] = "OR" ,
+    [INSTRUCTION_CP] = "CP" ,
+    [INSTRUCTION_INC] = "INC" ,
+    [INSTRUCTION_DEC] = "DEC" ,
+    [INSTRUCTION_DAA] = "DAA" ,
+    [INSTRUCTION_CPL] = "CPL" ,
+    [INSTRUCTION_RLCA] = "RLCA" ,
+    [INSTRUCTION_RLA] = "RLA" ,
+    [INSTRUCTION_RRA] = "RRA" ,
+    [INSTRUCTION_RLC] = "RLC" ,
+    [INSTRUCTION_RL] = "RL" ,
+    [INSTRUCTION_RRC] = "RRC" ,
+    [INSTRUCTION_RR] = "RR" ,
+    [INSTRUCTION_SLA] = "SLA" ,
+    [INSTRUCTION_SWAP] = "SWAP" ,
+    [INSTRUCTION_SRA] = "SRA" ,
+    [INSTRUCTION_SRL] = "SRL" ,
+    [INSTRUCTION_BIT] = "BIT" ,
+    [INSTRUCTION_SET] = "SET" ,
+    [INSTRUCTION_RES] = "RES" ,
+    [INSTRUCTION_CCF] = "CCF" ,
+    [INSTRUCTION_SCF] = "SCF" ,
+    [INSTRUCTION_NOP] = "NOP" ,
+    [INSTRUCTION_HALT] = "HALT" ,
+    [INSTRUCTION_STOP] = "STOP" ,
+    [INSTRUCTION_DI] = "DI" ,
+    [INSTRUCTION_EI] = "EI" ,
+    [INSTRUCTION_JP] = "JP" ,
+    [INSTRUCTION_JR] = "JR" ,
+    [INSTRUCTION_CALL] = "CALL" ,
+    [INSTRUCTION_RET] = "RET" ,
+    [INSTRUCTION_RETI] = "RETI" ,
+    [INSTRUCTION_RST] = "RST"
+};
+
+const char* get_instruction_type_name(InstructionType instruction_type) {
+    return instruction_type_names[instruction_type];
 }
 

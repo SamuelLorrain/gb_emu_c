@@ -38,7 +38,9 @@ int main(int argc, char* argv[argc + 1]) {
 
     Cpu cpu = {0};
     cpu.regs.pc = 0x100;
+
     cpu.mmu.rom_buffer = rom_buffer;
+
 
     for(int i = 0; i < 10; i++) {
         step(&cpu);

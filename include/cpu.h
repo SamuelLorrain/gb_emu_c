@@ -25,8 +25,8 @@ typedef struct {
     union {
         uint16_t bc;
         struct {
-            uint8_t b;
             uint8_t c;
+            uint8_t b;
         };
     };
     union {
@@ -50,13 +50,24 @@ typedef struct {
 typedef struct {
     uint8_t current_opcode;
     uint16_t current_data;
+    uint16_t current_memory_destination;
+    uint16_t current_destination_in_memory;
     Instruction* current_instruction;
-    bool interruptions;
+    uint8_t ei_register;
+    bool interruption_master_enable;
     uint64_t cycles;
     CpuRegisters regs;
     MMU mmu;
 } Cpu;
 
 void step(Cpu* cpu);
+uint16_t get_reg(Cpu* cpu, RegisterName reg_name);
+void set_reg(Cpu* cpu, RegisterName reg_name, uint16_t value);
+
+uint8_t mmu_read(Cpu* cpu, uint16_t addr);
+uint16_t mmu_read16(Cpu* cpu, uint16_t addr);
+void mmu_write(Cpu* cpu, uint16_t addr, uint8_t value);
+void mmu_write16(Cpu* cpu, uint16_t addr, uint16_t value);
+
 
 #endif
