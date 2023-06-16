@@ -88,11 +88,12 @@ uint16_t mmu_read16(Cpu* cpu, uint16_t addr) {
 void mmu_write16(Cpu* cpu, uint16_t addr, uint16_t value) {
     // little endian
     if (addr+1 < 0x8000) {
-        cpu->mmu.rom_buffer[addr] = (value >> 8) & 0xff;
-        cpu->mmu.rom_buffer[addr+1] = value & 0xff;
+        cpu->mmu.rom_buffer[addr] = value & 0xff;
+        cpu->mmu.rom_buffer[addr+1] = (value >> 8) & 0xff;
+    } else {
+        fprintf(stderr, "Unsupported write16 \n");
+        return;
     }
-    fprintf(stderr, "Unsupported write16 \n");
-    return;
 }
 
 Instruction instructions[0x100] = {
@@ -343,6 +344,7 @@ Instruction instructions[0x100] = {
     [0xF5] = {INSTRUCTION_PUSH, ADDRESSING_MODE_R, REGISTER_NAME_AF},
     [0xF6] = {INSTRUCTION_OR, ADDRESSING_MODE_A8},
     [0xF7] = {INSTRUCTION_RST, ADDRESSING_MODE_NONE, REGISTER_NAME_NONE, REGISTER_NAME_NONE, CONDITION_FLAG_NONE, 0x30},
+    [0xF9] = {INSTRUCTION_LD, ADDRESSING_MODE_R_R, REGISTER_NAME_SP, REGISTER_NAME_HL},
     [0xFA] = {INSTRUCTION_LD, ADDRESSING_MODE_R_A16, REGISTER_NAME_A},
     [0xFE] = {INSTRUCTION_CP, ADDRESSING_MODE_A8},
     [0xFF] = {INSTRUCTION_RST, ADDRESSING_MODE_NONE, REGISTER_NAME_NONE, REGISTER_NAME_NONE, CONDITION_FLAG_NONE, 0x38},
@@ -397,10 +399,10 @@ uint16_t get_reg(Cpu* cpu, RegisterName reg_name) {
         case REGISTER_NAME_PC: return cpu->regs.pc;
         case REGISTER_NAME_SP: return cpu->regs.sp;
         default:
-            fprintf(stderr, "ERROR UNKNOWN REGISTER NAME\n");
+            fprintf(stderr, "ERROR UNKNOWN REGISTER NAME (get_reg)\n");
             exit(1);
     }
-    fprintf(stderr, "ERROR UNKNOWN REGISTER NAME\n");
+    fprintf(stderr, "ERROR UNKNOWN REGISTER NAME (get_reg)\n");
     exit(1);
 }
 
@@ -421,7 +423,7 @@ void set_reg(Cpu* cpu, RegisterName reg_name, uint16_t value) {
         case REGISTER_NAME_PC: cpu->regs.pc = value; break;
         case REGISTER_NAME_SP: cpu->regs.sp = value; break;
         default:
-            fprintf(stderr, "ERROR UNKNOWN REGISTER NAME\n");
+            fprintf(stderr, "ERROR UNKNOWN REGISTER NAME (set_reg)\n");
             exit(1);
     }
 }
@@ -502,7 +504,8 @@ void fetch_data(Cpu* cpu) {
             cpu->regs.pc++;
             return;
         case ADDRESSING_MODE_A8_R:
-            cpu->current_data = get_reg(cpu, cpu->current_instruction->reg_a);
+            /* cpu->current_data = get_reg(cpu, cpu->current_instruction->reg_a); */
+            cpu->current_data = mmu_read(cpu, cpu->regs.pc);
             cpu->current_memory_destination = 0xff00 | mmu_read(cpu, cpu->regs.pc);
             cpu->cycles++;
             cpu->current_destination_in_memory = true;

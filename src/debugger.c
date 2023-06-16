@@ -1046,6 +1046,7 @@ void debug_instructions(uint8_t const rom[], uint16_t const offset, size_t const
 }
 
 void debug_cb_instruction(uint8_t const rom[], unsigned int const pc) {
+    printf("CB INSTRUCTION =>");
     const char* reg_operand = NULL;
     const char* reg_operator = NULL;
     uint8_t operand = rom[pc] & 0x0f;
@@ -1267,7 +1268,8 @@ static const char* instruction_type_names[] = {
     [INSTRUCTION_CALL] = "CALL" ,
     [INSTRUCTION_RET] = "RET" ,
     [INSTRUCTION_RETI] = "RETI" ,
-    [INSTRUCTION_RST] = "RST"
+    [INSTRUCTION_RST] = "RST",
+    [INSTRUCTION_CB] = "CB" ,
 };
 
 const char* get_instruction_type_name(InstructionType instruction_type) {

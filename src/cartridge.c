@@ -13,6 +13,5 @@ bool is_header_checksum_valid(RomHeader* rom_header, uint8_t const rom_buffer[st
     for (uint16_t address = 0x0134; address <= 0x014C; address++) {
         checksum = checksum - rom_buffer[address] - 1;
     }
-    printf("COMPUTED CHECKSUM : 0x%x\n", checksum);
     return (checksum == rom_header->header_checksum);
 }

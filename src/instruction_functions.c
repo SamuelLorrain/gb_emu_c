@@ -31,9 +31,9 @@ void ld_instruction(Cpu* cpu) {
     if (cpu->current_destination_in_memory) {
         if (cpu->current_instruction->reg_b >= REGISTER_NAME_AF) {
             cpu->cycles++;
-            mmu_write16(cpu, cpu->current_destination_in_memory, cpu->current_data);
+            mmu_write16(cpu, cpu->current_memory_destination, cpu->current_data);
         } else {
-            mmu_write(cpu, cpu->current_destination_in_memory, cpu->current_data);
+            mmu_write(cpu, cpu->current_memory_destination, cpu->current_data);
         }
         return;
     }
@@ -52,7 +52,7 @@ void ld_instruction(Cpu* cpu) {
 }
 
 void ldh_instruction(Cpu* cpu) {
-    if (cpu->current_instruction->reg_a == REGISTER_NAME_A) {
+    if (cpu->current_instruction->reg_b == REGISTER_NAME_A) {
         set_reg(
             cpu,
             REGISTER_NAME_A,
