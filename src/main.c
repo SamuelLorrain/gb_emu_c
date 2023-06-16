@@ -43,6 +43,7 @@ int main(int argc, char* argv[argc + 1]) {
 
     for(int i = 0; i < 50; i++) {
         step(&cpu);
+        reset_instruction_state(&cpu);
     }
     return EXIT_SUCCESS;
 }

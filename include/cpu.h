@@ -54,6 +54,7 @@ typedef struct {
     uint16_t current_destination_in_memory;
     Instruction* current_instruction;
     uint8_t ei_register;
+    bool enabling_ime;
     bool interruption_master_enable;
     uint64_t cycles;
     CpuRegisters regs;
@@ -61,6 +62,7 @@ typedef struct {
 } Cpu;
 
 void step(Cpu* cpu);
+void reset_instruction_state(Cpu* cpu);
 uint16_t get_reg(Cpu* cpu, RegisterName reg_name);
 void set_reg(Cpu* cpu, RegisterName reg_name, uint16_t value);
 

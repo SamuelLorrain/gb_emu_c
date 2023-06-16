@@ -100,6 +100,10 @@ void di_instruction(Cpu* cpu) {
     cpu->interruption_master_enable = false;
 }
 
+void di_instruction(Cpu* cpu) {
+    cpu->enabling_ime = true;
+}
+
 void pop_instruction(Cpu* cpu) {
     uint16_t lo = stack_pop(cpu);
     cpu->cycles++;
@@ -578,3 +582,71 @@ void resset_instruction(Cpu* cpu, int reg_name, uint8_t bit, uint8_t set_or_rese
         set_reg(cpu, reg_name, value);
     }
 }
+
+void rlca_instruction(Cpu* cpu) {
+    uint8_t bit7 = (((cpu->regs.a) << 7) >> 7) & 0x1;
+    cpu->regs.a <<= 1;
+    cpu->regs.a |= bit7;
+    cpu->regs.f = 0;
+    cpu->regs.f_c = bit7;
+}
+
+void rrca_instruction(Cpu* cpu) {
+    uint8_t bit0 = cpu->regs.a & 0x1;
+    cpu->regs.a >>= 1;
+    cpu->regs.a |= (bit0 << 7);
+    cpu->regs.f = 0;
+    cpu->regs.f_c = bit0;
+}
+
+void rla_instruction(Cpu* cpu) {
+    uint8_t bit7 = (((cpu->regs.a) << 7) >> 7) & 0x1;
+    cpu->regs.a <<= 1;
+    cpu->regs.a |= cpu->regs.f_c;
+    cpu->regs.f = 0;
+    cpu->regs.f_c = bit7;
+}
+
+void rra_instruction(Cpu* cpu) {
+    uint8_t bit0 = cpu->regs.a & 0x1;
+    cpu->regs.a >>= 1;
+    cpu->regs.a |= cpu->regs.f_c;
+    cpu->regs.f = 0;
+    cpu->regs.f_c = bit0;
+}
+
+void daa_instruction(Cpu* cpu) {
+    uint8_t result = cpu->regs.a;
+    uint8_t correction = 0;
+    correction |= cpu->regs.f_h ? 0x06 : 0x00;
+    correction |= cpu->regs.f_c ? 0x60 : 0x00;
+    if (cpu->regs.f_n) {
+        result -= correction;
+    } else {
+        correction |= ((result & 0x0F) > 0x09) ? 0x06 : 0x00;
+        correction |= (result > 0x99) ? 0x60 : 0x00;
+        result += correction;
+    }
+    cpu->regs.f_z = result == 0;
+    cpu->regs.f_c = ((correction & 0x60) != 0);
+    cpu->regs.a = result;
+}
+
+void cpl_instruction(Cpu* cpu) {
+    cpu->regs.a = ~cpu->regs.a;
+    cpu->regs.f_n = 1;
+    cpu->regs.f_h = 1;
+}
+
+void scf_instruction(Cpu* cpu) {
+    cpu->regs.f_n = 0;
+    cpu->regs.f_h = 0;
+    cpu->regs.f_c = 1;
+}
+
+void ccf_instruction(Cpu* cpu) {
+    cpu->regs.f_n = 0;
+    cpu->regs.f_h = 0;
+    cpu->regs.f_c = !cpu->regs.f_c;
+}
+
