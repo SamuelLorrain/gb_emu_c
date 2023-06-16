@@ -53,7 +53,20 @@ typedef enum {
     INSTRUCTION_CALL,
     INSTRUCTION_RET,
     INSTRUCTION_RETI,
-    INSTRUCTION_RST
+    INSTRUCTION_RST,
+
+    INSTRUCTION_CB,
+    INSTRUCTION_CB_RLC,
+    INSTRUCTION_CB_RRC,
+    INSTRUCTION_CB_RL,
+    INSTRUCTION_CB_RR,
+    INSTRUCTION_CB_SLA,
+    INSTRUCTION_CB_SRA,
+    INSTRUCTION_CB_SWAP,
+    INSTRUCTION_CB_SRL,
+    INSTRUCTION_CB_BIT,
+    INSTRUCTION_CB_RES,
+    INSTRUCTION_CB_SET,
 } InstructionType;
 
 typedef enum {
@@ -91,6 +104,7 @@ typedef enum {
     ADDRESSING_MODE_HLD_R,
     ADDRESSING_MODE_R_A8,
     ADDRESSING_MODE_A8_R,
+    ADDRESSING_MODE_A8,
     ADDRESSING_MODE_D8,
     ADDRESSING_MODE_D16_R,
     ADDRESSING_MODE_MR_D8,
@@ -99,6 +113,7 @@ typedef enum {
     ADDRESSING_MODE_R_A16,
     ADDRESSING_MODE_HL_SPR,
 } AddressingMode;
+
 
 typedef enum {
     CONDITION_FLAG_NONE,
@@ -116,5 +131,10 @@ typedef struct {
     ConditionFlag condition;
     uint8_t param;
 } Instruction;
+
+typedef struct {
+    InstructionType type;
+    uint8_t param;
+} CBInstructionLayout;
 
 #endif

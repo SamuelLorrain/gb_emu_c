@@ -9,6 +9,7 @@
 #include "file_utils.h"
 #include "cartridge.h"
 #include "debugger.h"
+#include "instruction_functions.h"
 
 int main(int argc, char* argv[argc + 1]) {
     /* if (argc < 2) { */
@@ -41,11 +42,9 @@ int main(int argc, char* argv[argc + 1]) {
 
     cpu.mmu.rom_buffer = rom_buffer;
 
-
     for(int i = 0; i < 50; i++) {
         step(&cpu);
     }
-
     return EXIT_SUCCESS;
 }
 

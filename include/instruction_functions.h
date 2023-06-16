@@ -12,7 +12,6 @@ void jp_instruction(Cpu* cpu);
 void jr_instruction(Cpu* cpu);
 void nop_instruction();
 void di_instruction(Cpu* cpu);
-void xor_instruction(Cpu* cpu);
 void pop_instruction(Cpu* cpu);
 void push_instruction(Cpu* cpu);
 void call_instruction(Cpu* cpu);
@@ -22,5 +21,24 @@ void rst_instruction(Cpu* cpu);
 void inc_instruction(Cpu* cpu);
 void dec_instruction(Cpu* cpu);
 void add_instruction(Cpu* cpu);
+void adc_instruction(Cpu* cpu);
+void sub_instruction(Cpu* cpu);
+void sbc_instruction(Cpu* cpu);
+void and_instruction(Cpu* cpu);
+void xor_instruction(Cpu* cpu);
+void or_instruction(Cpu* cpu);
+void cp_instruction(Cpu* cpu);
+void cb_instruction(Cpu* cpu);
+
+void rlc_instruction(Cpu* cpu, int reg_name);
+void rrc_instruction(Cpu* cpu, int reg_name);
+void rr_instruction(Cpu* cpu, int reg_name);
+void rl_instruction(Cpu* cpu, int reg_name);
+void sla_instruction(Cpu* cpu, int reg_name);
+void sra_instruction(Cpu* cpu, int reg_name);
+void swap_instruction(Cpu* cpu, int reg_name);
+void srl_instruction(Cpu* cpu, int reg_name);
+void bit_instruction(Cpu* cpu, int reg_name, uint8_t bit);
+void resset_instruction(Cpu* cpu, int reg_name, uint8_t bit, uint8_t set_or_reset);
 
 #endif
