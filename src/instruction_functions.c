@@ -65,18 +65,33 @@ void ldh_instruction(Cpu* cpu) {
     cpu->cycles++;
 }
 
-void jp_instruction(Cpu* cpu) {
+void goto_addr(Cpu* cpu, uint16_t addr,  bool pushpc) {
     if (check_condition(cpu)) {
-        cpu->regs.pc = cpu->current_data;
+        if (pushpc) {
+            stack_push16(cpu, cpu->regs.pc);
+            cpu->cycles += 2;
+        }
+        cpu->regs.pc = addr;
         cpu->cycles += 1;
     }
 }
 
+void call_instruction(Cpu* cpu) {
+    goto_addr(cpu, cpu->current_data, true);
+}
+
+void rst_instruction(Cpu* cpu) {
+    goto_addr(cpu, cpu->current_instruction->param, true);
+}
+
+void jp_instruction(Cpu* cpu) {
+    goto_addr(cpu, cpu->current_data, false);
+}
+
 void jr_instruction(Cpu* cpu) {
-    if (check_condition(cpu)) {
-        cpu->regs.pc += cpu->current_data;
-        cpu->cycles += 1;
-    }
+    int8_t relative_addr = (int8_t)cpu->current_data & 0xff; // may be relative
+    uint16_t addr = cpu->regs.pc + relative_addr;
+    goto_addr(cpu, addr, false);
 }
 
 void nop_instruction(void) {}
@@ -112,4 +127,74 @@ void push_instruction(Cpu* cpu) {
     cpu->cycles++;
     stack_push(cpu, lo);
     cpu->cycles++;
+}
+
+void ret_instruction(Cpu* cpu) {
+    if (cpu->current_instruction->condition != CONDITION_FLAG_NONE) {
+        cpu->cycles++;
+    }
+    if (check_condition(cpu)) {
+        uint16_t hi = stack_pop(cpu);
+        cpu->cycles++;
+        uint16_t lo = stack_pop(cpu);
+        cpu->cycles++;
+        cpu->regs.pc = (hi << 8) | lo;
+        cpu->cycles++;
+    }
+}
+
+void reti_instruction(Cpu* cpu) {
+    cpu->interruption_master_enable = true;
+    ret_instruction(cpu);
+}
+
+void inc_instruction(Cpu* cpu) {
+    uint16_t value = get_reg(cpu, cpu->current_instruction->reg_a) + 1;
+    if (cpu->current_instruction->reg_a >= REGISTER_NAME_AF) {
+        cpu->cycles++;
+        set_reg(cpu, cpu->current_instruction->reg_a, value);
+    }
+    if ((cpu->current_instruction->reg_a == REGISTER_NAME_HL) &&
+            (cpu->current_instruction->mode == ADDRESSING_MODE_MR)) {
+        value = mmu_read(cpu, get_reg(cpu, REGISTER_NAME_HL)) + 1;
+        value &= 0xff;
+        mmu_write(cpu, get_reg(cpu, REGISTER_NAME_HL), value);
+    } else {
+        set_reg(cpu, cpu->current_instruction->reg_a, value);
+        value = get_reg(cpu, cpu->current_instruction->reg_a);
+    }
+    if ((cpu->current_opcode & 0x03) == 0x03) {
+        return;
+    }
+
+    cpu->regs.f_z = value == 0;
+    cpu->regs.f_n = 0;
+    cpu->regs.f_h = (value & 0x0f) == 0;
+}
+
+void dec_instruction(Cpu* cpu) {
+    uint16_t value = get_reg(cpu, cpu->current_instruction->reg_a) - 1;
+    if (cpu->current_instruction->reg_a >= REGISTER_NAME_AF) {
+        cpu->cycles++;
+        set_reg(cpu, cpu->current_instruction->reg_a, value);
+    }
+    if ((cpu->current_instruction->reg_a == REGISTER_NAME_HL) &&
+            (cpu->current_instruction->mode = ADDRESSING_MODE_MR)) {
+        value = mmu_read(cpu, get_reg(cpu, REGISTER_NAME_HL)) - 1;
+        mmu_write(cpu, get_reg(cpu, REGISTER_NAME_HL), value);
+    } else {
+        set_reg(cpu, cpu->current_instruction->reg_a, value);
+        value = get_reg(cpu, cpu->current_instruction->reg_a);
+    }
+    if ((cpu->current_opcode & 0x0B) == 0x0B) {
+        return;
+    }
+
+    cpu->regs.f_z = value == 0;
+    cpu->regs.f_n = 1;
+    cpu->regs.f_h = (value & 0x0f) == 0x0F;
+}
+
+void add_instruction(Cpu* cpu) {
+
 }

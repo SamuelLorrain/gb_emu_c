@@ -78,6 +78,7 @@ typedef enum {
     ADDRESSING_MODE_NONE,
     ADDRESSING_MODE_R_D16,
     ADDRESSING_MODE_IMM16,
+    ADDRESSING_MODE_A16,
     ADDRESSING_MODE_IMM8,
     ADDRESSING_MODE_R_D8,
     ADDRESSING_MODE_R,
@@ -113,6 +114,7 @@ typedef struct {
     RegisterName reg_a;
     RegisterName reg_b;
     ConditionFlag condition;
+    uint8_t param;
 } Instruction;
 
 #endif

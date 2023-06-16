@@ -15,5 +15,12 @@ void di_instruction(Cpu* cpu);
 void xor_instruction(Cpu* cpu);
 void pop_instruction(Cpu* cpu);
 void push_instruction(Cpu* cpu);
+void call_instruction(Cpu* cpu);
+void ret_instruction(Cpu* cpu);
+void reti_instruction(Cpu* cpu);
+void rst_instruction(Cpu* cpu);
+void inc_instruction(Cpu* cpu);
+void dec_instruction(Cpu* cpu);
+void add_instruction(Cpu* cpu);
 
 #endif
