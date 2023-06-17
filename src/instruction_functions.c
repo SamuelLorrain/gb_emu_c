@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "mmu.h"
 #include "cpu.h"
 #include "instruction_functions.h"
+#include "stack_operations.h"
 
 bool check_condition(Cpu* cpu) {
     ConditionFlag condition = cpu->current_instruction->condition;
@@ -100,7 +102,7 @@ void di_instruction(Cpu* cpu) {
     cpu->interruption_master_enable = false;
 }
 
-void di_instruction(Cpu* cpu) {
+void ei_instruction(Cpu* cpu) {
     cpu->enabling_ime = true;
 }
 

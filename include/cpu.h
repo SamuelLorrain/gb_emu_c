@@ -2,7 +2,6 @@
 #define CPU_H
 #include <stdint.h>
 #include <stdbool.h>
-#include "mmu.h"
 #include "instruction.h"
 
 typedef struct {
@@ -48,32 +47,32 @@ typedef struct {
 } CpuRegisters;
 
 typedef struct {
+    uint8_t* rom_buffer;
+    uint8_t wram_buffer[0x2000];
+    uint8_t hram_buffer[0x80];
+} MMU;
+
+typedef struct {
+    uint8_t ei_register;
+    bool enabling_ime;
+    bool interruption_master_enable;
+    bool halt;
+    uint64_t cycles;
+    CpuRegisters regs;
+    MMU mmu;
+
+    // should be in a struct that act on the Cpu instead
+    // of the cpu itself
     uint8_t current_opcode;
     uint16_t current_data;
     uint16_t current_memory_destination;
     uint16_t current_destination_in_memory;
     Instruction* current_instruction;
-    uint8_t ei_register;
-    bool enabling_ime;
-    bool interruption_master_enable;
-    uint64_t cycles;
-    CpuRegisters regs;
-    MMU mmu;
 } Cpu;
 
 void step(Cpu* cpu);
 void reset_instruction_state(Cpu* cpu);
 uint16_t get_reg(Cpu* cpu, RegisterName reg_name);
 void set_reg(Cpu* cpu, RegisterName reg_name, uint16_t value);
-
-uint8_t mmu_read(Cpu* cpu, uint16_t addr);
-uint16_t mmu_read16(Cpu* cpu, uint16_t addr);
-void mmu_write(Cpu* cpu, uint16_t addr, uint8_t value);
-void mmu_write16(Cpu* cpu, uint16_t addr, uint16_t value);
-
-void stack_push(Cpu* cpu, uint8_t value);
-void stack_push16(Cpu* cpu, uint16_t value);
-uint8_t stack_pop(Cpu* cpu);
-uint16_t stack_pop16(Cpu* cpu);
 
 #endif

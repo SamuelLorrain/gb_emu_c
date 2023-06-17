@@ -10,6 +10,7 @@
 #include "cartridge.h"
 #include "debugger.h"
 #include "instruction_functions.h"
+#include "interrupt.h"
 
 int main(int argc, char* argv[argc + 1]) {
     /* if (argc < 2) { */
@@ -41,9 +42,19 @@ int main(int argc, char* argv[argc + 1]) {
     cpu.regs.pc = 0x100;
     cpu.mmu.rom_buffer = rom_buffer;
 
-    for(int i = 0; i < 50; i++) {
+    for(int i = 0; i < 5000; i++) {
         step(&cpu);
         reset_instruction_state(&cpu);
+
+        if (cpu.interruption_master_enable) {
+            /* handle_interrupt(&cpu); */
+            cpu.enabling_ime = false;
+        }
+        if (cpu.enabling_ime) {
+            cpu.interruption_master_enable = true;
+            cpu.enabling_ime = false;
+        }
+
     }
     return EXIT_SUCCESS;
 }

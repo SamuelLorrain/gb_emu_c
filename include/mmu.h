@@ -1,12 +1,10 @@
 #ifndef MMU_H
 #define MMU_H
-#include <stdint.h>
+#include "cpu.h"
 
-typedef struct {
-    uint8_t* rom_buffer;
-    uint8_t wram_buffer[0x2000];
-    uint8_t hram_buffer[0x80];
-} MMU;
+uint8_t mmu_read(Cpu* cpu, uint16_t addr);
+uint16_t mmu_read16(Cpu* cpu, uint16_t addr);
+void mmu_write(Cpu* cpu, uint16_t addr, uint8_t value);
+void mmu_write16(Cpu* cpu, uint16_t addr, uint16_t value);
 
 #endif
-

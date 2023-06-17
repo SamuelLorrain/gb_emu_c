@@ -115,7 +115,6 @@ typedef enum {
     ADDRESSING_MODE_HL_SPR,
 } AddressingMode;
 
-
 typedef enum {
     CONDITION_FLAG_NONE,
     CONDITION_FLAG_Z,

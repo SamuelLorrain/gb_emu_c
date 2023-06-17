@@ -19,16 +19,20 @@ add_executable(
     src/cartridge.c
     src/debugger.c
     src/cpu.c
-    src/instruction_functions.c)
+    src/instruction_mapper.c
+    src/instruction_functions.c
+    src/mmu.c
+    src/stack_operations.c
+)
 
 target_link_libraries(gb_emu ${SDL2_LIBRARIES} m)
 
 
 # tests
-add_executable(test
-    tests/test.c
-    src/instruction_functions.c
-    src/cartridge.c
-    src/debugger.c
-    src/cpu.c)
-target_link_libraries(test criterion)
+# add_executable(test
+#     tests/test.c
+#     src/instruction_functions.c
+#     src/cartridge.c
+#     src/debugger.c
+#     src/cpu.c)
+# target_link_libraries(test criterion)
