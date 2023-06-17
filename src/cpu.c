@@ -31,8 +31,6 @@ uint16_t get_reg(Cpu* cpu, RegisterName reg_name) {
             fprintf(stderr, "ERROR UNKNOWN REGISTER NAME (get_reg)\n");
             exit(1);
     }
-    fprintf(stderr, "ERROR UNKNOWN REGISTER NAME (get_reg)\n");
-    exit(1);
 }
 
 void set_reg(Cpu* cpu, RegisterName reg_name, uint16_t value) {
@@ -184,7 +182,6 @@ void fetch_data(Cpu* cpu) {
             cpu->regs.pc += 2;
             return;
         }
-
         default:
             fprintf(stderr, "UNKNOWN ADDRESSING MODE %d\n", cpu->current_instruction->mode);
             exit(1);

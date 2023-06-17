@@ -40,13 +40,13 @@ void ld_instruction(Cpu* cpu) {
         return;
     }
     if (cpu->current_instruction->mode == ADDRESSING_MODE_HL_SPR) {
-        uint8_t b = get_reg(cpu, cpu->current_instruction->reg_b);
-        uint8_t a = cpu->current_data;
-        cpu->regs.f_h = (b & 0xf) + (a & 0xf) >= 0x10;
-        cpu->regs.f_c = (b & 0xff) + (a & 0xff) >= 0x100;
+        uint16_t b = get_reg(cpu, cpu->current_instruction->reg_b);
+        int8_t s8 = cpu->current_data;
+        cpu->regs.f_h = (b & 0xf) + (s8 & 0xf) >= 0x10;
+        cpu->regs.f_c = (b & 0xff) + (s8 & 0xff) >= 0x100;
         set_reg(cpu,
                 cpu->current_instruction->reg_a,
-                cpu->current_instruction->reg_b + cpu->current_data);
+                b + (int8_t)cpu->current_data);
         return;
     }
     // general case
