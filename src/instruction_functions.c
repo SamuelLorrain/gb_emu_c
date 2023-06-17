@@ -133,11 +133,11 @@ void ret_instruction(Cpu* cpu) {
         cpu->cycles++;
     }
     if (check_condition(cpu)) {
-        uint16_t hi = stack_pop(cpu);
-        cpu->cycles++;
         uint16_t lo = stack_pop(cpu);
         cpu->cycles++;
-        cpu->regs.pc = (hi << 8) | lo;
+        uint16_t hi = stack_pop(cpu);
+        cpu->cycles++;
+        cpu->regs.pc = ((hi & 0x00ff) << 8) | (lo & 0x00ff);
         cpu->cycles++;
     }
 }

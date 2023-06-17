@@ -31,6 +31,7 @@ target_link_libraries(gb_emu ${SDL2_LIBRARIES} m)
 # tests
 add_executable(
     test
+    tests/call_ret_ect_instructions.c
     tests/push_pop_instructions.c
     tests/ld_16_green_instructions.c
     tests/ld_blue_instructions.c
