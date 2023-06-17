@@ -34,6 +34,7 @@ add_executable(
     tests/push_pop_instructions.c
     tests/ld_16_green_instructions.c
     tests/ld_blue_instructions.c
+    tests/jump_instructions.c
     src/file_utils.c
     src/cartridge.c
     src/debugger.c

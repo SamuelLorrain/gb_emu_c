@@ -91,7 +91,7 @@ void jp_instruction(Cpu* cpu) {
 }
 
 void jr_instruction(Cpu* cpu) {
-    int8_t relative_addr = (int8_t)cpu->current_data & 0xff; // may be relative
+    int8_t relative_addr = (int8_t)(cpu->current_data & 0xff); // may be relative
     uint16_t addr = cpu->regs.pc + relative_addr;
     goto_addr(cpu, addr, false);
 }
