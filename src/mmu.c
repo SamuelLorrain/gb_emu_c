@@ -26,7 +26,12 @@ uint8_t mmu_read(Cpu* cpu, uint16_t addr) {
         return 0;
     } else if (addr <  0xFF80) {
         // I/O registers
-        fprintf(stderr, "Unsupported read to IO\n");
+        if (addr == 0xff01) {
+            return cpu->mmu.serial_data[0];
+        } else if (addr == 0xff02) {
+            return cpu->mmu.serial_data[1];
+        }
+        fprintf(stderr, "Unsupported read to io\n");
     } else if (addr == 0xFFFF) {
         // interruption
         return cpu->mmu.ei_register;
@@ -62,6 +67,13 @@ void mmu_write(Cpu* cpu, uint16_t addr, uint8_t value) {
         return;
     } else if (addr <  0xFF80) {
         // I/O registers
+        if (addr == 0xff01) {
+            cpu->mmu.serial_data[0] = value;
+            return;
+        } else if (addr == 0xff02) {
+            cpu->mmu.serial_data[1] = value;
+            return;
+        }
         fprintf(stderr, "Unsupported write to IO\n");
     } else if (addr == 0xFFFF) {
         cpu->mmu.ei_register = value;

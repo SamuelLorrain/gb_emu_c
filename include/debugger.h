@@ -14,5 +14,6 @@ void debug_registers(CpuRegisters* const regs);
 void debug_registers_inline(CpuRegisters* const regs);
 void debug_header(RomHeader* const rom_header, uint8_t const rom[static 0x150]);
 void debug_flag_inline(CpuRegisters* const regs);
+void debug_serial(Cpu* const cpu);
 
 #endif

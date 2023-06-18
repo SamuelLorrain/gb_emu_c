@@ -218,20 +218,32 @@ void reset_instruction_state(Cpu* cpu) {
 static char buffer[DEBUG_INSTRUCTION_BUFFER_SIZE];
 
 void step(Cpu* cpu) {
+#ifndef NDEBUG
     printf("0x%04x : ", cpu->regs.pc);
+#endif
+
     fetch_opcode(cpu);
     get_current_instruction(cpu);
     debug_instruction(buffer, cpu->mmu.rom_buffer, cpu->regs.pc);
     cpu->regs.pc++;
+
+#ifndef NDEBUG
     printf("%s\t", buffer);
     printf("(%02X %02X %02X) ",
             cpu->current_opcode,
             mmu_read(cpu, cpu->regs.pc),
             mmu_read(cpu, cpu->regs.pc+1));
+#endif
+
     fetch_data(cpu);
     execute(cpu);
+
+#ifndef NDEBUG
     debug_registers_inline(&cpu->regs);
     printf("flags : ");
     debug_flag_inline(&cpu->regs);
     putchar('\n');
+#endif
+
+    debug_serial(cpu);
 }

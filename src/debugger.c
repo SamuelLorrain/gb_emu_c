@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "cpu.h"
+#include "mmu.h"
 #include "debugger.h"
 #include "cartridge.h"
 #include "instruction.h"
@@ -975,5 +976,24 @@ void debug_flag_inline(CpuRegisters* const regs) {
         printf("C");
     } else {
         printf("_");
+    }
+}
+
+static char serial_msg_buffer[0x1024] = {0};
+static uint16_t serial_msg_length = 0;
+static void get_character_from_serial_port(Cpu* const cpu) {
+    if(mmu_read(cpu, 0xff02) == 0x81) {
+        char c = mmu_read(cpu, 0xff01);
+        serial_msg_buffer[serial_msg_length] = c;
+        serial_msg_length++;
+
+        mmu_write(cpu, 0xff02, 0);
+    }
+}
+
+void debug_serial(Cpu* const cpu) {
+    get_character_from_serial_port(cpu);
+    if (serial_msg_buffer[0] != '\0') {
+        printf("\n SERIAL_VALUE = %s\n", serial_msg_buffer);
     }
 }
