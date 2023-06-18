@@ -54,6 +54,7 @@ void mmu_write(Cpu* cpu, uint16_t addr, uint8_t value) {
         cpu->mmu.rom_buffer[addr] = value;
     } else if (addr <  0xE000) {
         // wram
+        printf("wram address write 0x%04x ==> 0x%04x\n", addr, addr - 0xC000);
         cpu->mmu.wram_buffer[addr - 0xC0000] = value;
     } else if (addr <  0xFE00) {
         // echo ram

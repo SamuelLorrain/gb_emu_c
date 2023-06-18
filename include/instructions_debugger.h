@@ -50,6 +50,5 @@ static const char* instruction_type_names[] = {
     [INSTRUCTION_RST] = "RST"
 };
 
-const char* get_instruction_type_name(InstructionType instruction_type);
 
 #endif

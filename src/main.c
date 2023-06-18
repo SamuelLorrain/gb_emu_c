@@ -42,13 +42,19 @@ int main(int argc, char* argv[argc + 1]) {
     cpu.regs.pc = 0x100;
     cpu.mmu.rom_buffer = rom_buffer;
 
-    for(int i = 0; i < 100; i++) {
+    for(int i = 0; i < 80000; i++) {
         step(&cpu);
         reset_instruction_state(&cpu);
 
         if (cpu.halted) {
-            // pause, not implemented (need to make thread to sleep)
+            // halter not implemented (need to make thread to sleep)
             cpu.halted = false;
+            break;
+        }
+        if (cpu.stop) {
+            // stop not implemented (need to make thread to sleep)
+            cpu.stop  = false;
+            break;
         }
         if (cpu.interruption_master_enable) {
             handle_interrupt(&cpu);
@@ -58,7 +64,6 @@ int main(int argc, char* argv[argc + 1]) {
             cpu.interruption_master_enable = true;
             cpu.enabling_ime = false;
         }
-
     }
     return EXIT_SUCCESS;
 }

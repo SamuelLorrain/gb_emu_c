@@ -5,7 +5,7 @@ project(gb_emu
     DESCRIPTION "a gameboy emulator"
     LANGUAGES C)
 
-add_compile_options(-Wall -Wextra -Wpedantic)
+add_compile_options(-g -Wall -Wextra -Wpedantic)
 
 find_package(SDL2 REQUIRED)
 
@@ -37,6 +37,7 @@ add_executable(
     tests/ld_16_green_instructions.c
     tests/ld_blue_instructions.c
     tests/jump_instructions.c
+    tests/inc_dec_instructions.c
     src/file_utils.c
     src/cartridge.c
     src/debugger.c

@@ -6,6 +6,9 @@
 #include "debugger.h"
 #include "mmu.h"
 
+#define DEBUG_CPU
+#define DEBUG_SERIAL
+
 void fetch_opcode(Cpu* cpu) {
     cpu->current_opcode = mmu_read(cpu, cpu->regs.pc);
 }
@@ -218,7 +221,7 @@ void reset_instruction_state(Cpu* cpu) {
 static char buffer[DEBUG_INSTRUCTION_BUFFER_SIZE];
 
 void step(Cpu* cpu) {
-#ifndef NDEBUG
+#ifdef DEBUG_CPU
     printf("0x%04x : ", cpu->regs.pc);
 #endif
 
@@ -227,7 +230,7 @@ void step(Cpu* cpu) {
     debug_instruction(buffer, cpu->mmu.rom_buffer, cpu->regs.pc);
     cpu->regs.pc++;
 
-#ifndef NDEBUG
+#ifdef DEBUG_CPU
     printf("%s\t", buffer);
     printf("(%02X %02X %02X) ",
             cpu->current_opcode,
@@ -238,12 +241,14 @@ void step(Cpu* cpu) {
     fetch_data(cpu);
     execute(cpu);
 
-#ifndef NDEBUG
+#ifdef DEBUG_CPU
     debug_registers_inline(&cpu->regs);
     printf("flags : ");
     debug_flag_inline(&cpu->regs);
     putchar('\n');
 #endif
 
+#ifdef DEBUG_SERIAL
     debug_serial(cpu);
+#endif
 }

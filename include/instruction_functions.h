@@ -52,5 +52,6 @@ void scf_instruction(Cpu* cpu);
 void ccf_instruction(Cpu* cpu);
 
 void halt_instruction(Cpu* cpu);
+void stop_instruction(Cpu* cpu);
 
 #endif

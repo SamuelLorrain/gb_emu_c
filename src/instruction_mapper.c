@@ -9,7 +9,6 @@ Instruction instructions[0x100] = {
     [0x03] = {INSTRUCTION_INC, ADDRESSING_MODE_R, REGISTER_NAME_BC},
     [0x04] = {INSTRUCTION_INC, ADDRESSING_MODE_R, REGISTER_NAME_B},
     [0x05] = {INSTRUCTION_DEC, ADDRESSING_MODE_R, REGISTER_NAME_B},
-
     [0x06] = {INSTRUCTION_LD, ADDRESSING_MODE_R_D8, REGISTER_NAME_B},
     [0x07] = {INSTRUCTION_RLCA},
     [0x08] = {INSTRUCTION_LD, ADDRESSING_MODE_A16_R, REGISTER_NAME_NONE, REGISTER_NAME_SP},
@@ -302,4 +301,5 @@ cpu_instruction_function_ptr* instruction_ptrs[] = {
     [INSTRUCTION_CPL] = cpl_instruction,
     [INSTRUCTION_SCF] = scf_instruction,
     [INSTRUCTION_CCF] = ccf_instruction,
+    [INSTRUCTION_STOP] = stop_instruction,
 };

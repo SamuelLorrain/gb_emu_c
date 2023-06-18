@@ -149,7 +149,8 @@ void reti_instruction(Cpu* cpu) {
 
 void inc_instruction(Cpu* cpu) {
     uint16_t value = get_reg(cpu, cpu->current_instruction->reg_a) + 1;
-    if (cpu->current_instruction->reg_a >= REGISTER_NAME_AF) {
+    if (cpu->current_instruction->reg_a >= REGISTER_NAME_AF
+            && cpu->current_instruction->mode != ADDRESSING_MODE_MR) {
         cpu->cycles++;
         set_reg(cpu, cpu->current_instruction->reg_a, value);
     }
@@ -173,12 +174,13 @@ void inc_instruction(Cpu* cpu) {
 
 void dec_instruction(Cpu* cpu) {
     uint16_t value = get_reg(cpu, cpu->current_instruction->reg_a) - 1;
-    if (cpu->current_instruction->reg_a >= REGISTER_NAME_AF) {
+    if (cpu->current_instruction->reg_a >= REGISTER_NAME_AF
+            && cpu->current_instruction->mode != ADDRESSING_MODE_MR) {
         cpu->cycles++;
         set_reg(cpu, cpu->current_instruction->reg_a, value);
     }
     if ((cpu->current_instruction->reg_a == REGISTER_NAME_HL) &&
-            (cpu->current_instruction->mode = ADDRESSING_MODE_MR)) {
+            (cpu->current_instruction->mode == ADDRESSING_MODE_MR)) {
         value = mmu_read(cpu, get_reg(cpu, REGISTER_NAME_HL)) - 1;
         mmu_write(cpu, get_reg(cpu, REGISTER_NAME_HL), value);
     } else {
@@ -654,4 +656,8 @@ void ccf_instruction(Cpu* cpu) {
 
 void halt_instruction(Cpu* cpu) {
     cpu->halted = true;
+}
+
+void stop_instruction(Cpu* cpu) {
+    cpu->stop = true;
 }
