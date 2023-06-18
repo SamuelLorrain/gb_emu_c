@@ -8,7 +8,6 @@
 
 void fetch_opcode(Cpu* cpu) {
     cpu->current_opcode = mmu_read(cpu, cpu->regs.pc);
-    cpu->regs.pc++;
 }
 
 uint16_t get_reg(Cpu* cpu, RegisterName reg_name) {
@@ -208,23 +207,6 @@ void get_current_instruction(Cpu* cpu) {
     cpu->current_instruction = ins;
 }
 
-void step(Cpu* cpu) {
-    printf("0x%04x : ", cpu->regs.pc);
-    fetch_opcode(cpu);
-    get_current_instruction(cpu);
-    printf("%s\t",
-        get_instruction_type_name(cpu->current_instruction->type)
-    );
-    printf("(%02X %02X %02X) ",
-            cpu->current_opcode,
-            mmu_read(cpu, cpu->regs.pc),
-            mmu_read(cpu, cpu->regs.pc+1));
-    fetch_data(cpu);
-    execute(cpu);
-    debug_registers_inline(&cpu->regs);
-    putchar('\n');
-}
-
 void reset_instruction_state(Cpu* cpu) {
     cpu->current_data = 0;
     cpu->current_opcode = 0;
@@ -233,3 +215,23 @@ void reset_instruction_state(Cpu* cpu) {
     cpu->current_instruction = (void*)0;
 }
 
+static char buffer[DEBUG_INSTRUCTION_BUFFER_SIZE];
+
+void step(Cpu* cpu) {
+    printf("0x%04x : ", cpu->regs.pc);
+    fetch_opcode(cpu);
+    get_current_instruction(cpu);
+    debug_instruction(buffer, cpu->mmu.rom_buffer, cpu->regs.pc);
+    cpu->regs.pc++;
+    printf("%s\t", buffer);
+    printf("(%02X %02X %02X) ",
+            cpu->current_opcode,
+            mmu_read(cpu, cpu->regs.pc),
+            mmu_read(cpu, cpu->regs.pc+1));
+    fetch_data(cpu);
+    execute(cpu);
+    debug_registers_inline(&cpu->regs);
+    printf("flags : ");
+    debug_flag_inline(&cpu->regs);
+    putchar('\n');
+}
