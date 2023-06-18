@@ -29,7 +29,7 @@ uint8_t mmu_read(Cpu* cpu, uint16_t addr) {
         fprintf(stderr, "Unsupported read to IO\n");
     } else if (addr == 0xFFFF) {
         // interruption
-        return cpu->ei_register;
+        return cpu->mmu.ei_register;
         fprintf(stderr, "Unsupported read to interruption\n");
     } else {
         // >= FF80 && < FFFF
@@ -64,9 +64,7 @@ void mmu_write(Cpu* cpu, uint16_t addr, uint8_t value) {
         // I/O registers
         fprintf(stderr, "Unsupported write to IO\n");
     } else if (addr == 0xFFFF) {
-        // interruption
-        cpu->ei_register = value;
-        fprintf(stderr, "Unsupported write to interruption\n");
+        cpu->mmu.ei_register = value;
     }
     // >= FF80 && < FFFF
     cpu->mmu.hram_buffer[addr - 0xFF80] = value;

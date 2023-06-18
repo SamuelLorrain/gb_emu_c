@@ -652,3 +652,6 @@ void ccf_instruction(Cpu* cpu) {
     cpu->regs.f_c = !cpu->regs.f_c;
 }
 
+void halt_instruction(Cpu* cpu) {
+    cpu->halted = true;
+}

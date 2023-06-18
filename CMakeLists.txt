@@ -23,6 +23,7 @@ add_executable(
     src/instruction_functions.c
     src/mmu.c
     src/stack_operations.c
+    src/interrupt.c
 )
 
 target_link_libraries(gb_emu ${SDL2_LIBRARIES} m)

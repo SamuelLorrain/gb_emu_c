@@ -47,16 +47,16 @@ typedef struct {
 } CpuRegisters;
 
 typedef struct {
+    uint8_t ei_register;
     uint8_t* rom_buffer;
     uint8_t wram_buffer[0x2000];
     uint8_t hram_buffer[0x80];
 } MMU;
 
 typedef struct {
-    uint8_t ei_register;
     bool enabling_ime;
     bool interruption_master_enable;
-    bool halt;
+    bool halted;
     uint64_t cycles;
     CpuRegisters regs;
     MMU mmu;

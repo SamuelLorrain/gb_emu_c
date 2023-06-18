@@ -292,6 +292,7 @@ cpu_instruction_function_ptr* instruction_ptrs[] = {
     [INSTRUCTION_OR] = or_instruction,
     [INSTRUCTION_CP] = cp_instruction,
     [INSTRUCTION_CB] = cb_instruction,
+    [INSTRUCTION_HALT] = halt_instruction,
 
     [INSTRUCTION_RLCA] = rlca_instruction,
     [INSTRUCTION_RRCA] = rrca_instruction,
