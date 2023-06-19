@@ -7,7 +7,7 @@
 #include "mmu.h"
 
 #define DEBUG_CPU
-#define DEBUG_SERIAL
+/* #define DEBUG_SERIAL */
 
 void fetch_opcode(Cpu* cpu) {
     cpu->current_opcode = mmu_read(cpu, cpu->regs.pc);
@@ -248,7 +248,7 @@ void step(Cpu* cpu) {
     putchar('\n');
 #endif
 
-#ifdef DEBUG_SERIAL
-    debug_serial(cpu);
-#endif
+/* #ifdef DEBUG_SERIAL */
+debug_serial(cpu);
+/* #endif */
 }

@@ -15,6 +15,7 @@ void debug_registers_inline(CpuRegisters* const regs);
 void debug_header(RomHeader* const rom_header, uint8_t const rom[static 0x150]);
 void debug_flag_inline(CpuRegisters* const regs);
 void debug_serial(Cpu* const cpu);
+char get_debug_serial_buffer(uint16_t index);
 
 const char* get_instruction_type_name(InstructionType instruction_type);
 

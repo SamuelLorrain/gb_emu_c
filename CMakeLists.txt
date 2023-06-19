@@ -38,6 +38,7 @@ add_executable(
     tests/ld_blue_instructions.c
     tests/jump_instructions.c
     tests/inc_dec_instructions.c
+    tests/serial_io.c
     src/file_utils.c
     src/cartridge.c
     src/debugger.c
